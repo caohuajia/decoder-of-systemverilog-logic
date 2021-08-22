@@ -1,12 +1,18 @@
 import re
 import itertools
+import argparse
 import analysis
 
-sv = """assign a = b[0]&~(( b[1]// 注释文本
-                            |b[3] ) &b[4]
-                            |1'b0)|chj;
-            assign  s = ~a | b[3] &(a154[555])|k;"""
+parser = argparse.ArgumentParser("用法：", description = "dddd")
+parser.add_argument("-f","--file",help="input file",type=str)
+args = parser.parse_args()
+if not args.file:
+    print('请指定输入文件')
+    exit(0)
 
+sv = ''
+with open(args.file,'r') as f_r:
+    sv = f_r.read()
 
 in_var = set()
 out_var = set()
@@ -20,7 +26,6 @@ exps = sv.split(';')
 
 ## 处理sv字符串，提取输入输出变量和逻辑式
 for exp in exps[0:-1]:
-
     if  'assign' in exp:
         exp= exp.replace('assign','')
         exp= exp.replace('[','_')
@@ -35,10 +40,11 @@ for exp in exps[0:-1]:
         line = line.split('//')[0]
         exp += str(line)
     exp = exp.replace(' ','')
-
+    if exp == '':
+        continue
+    # print(exp)
     exp = exp.split('=')
     out_var.add(exp[0])
-    # print(out_var)
     exp[1] = exp[1].replace('1\'b','')
     exp[1] = exp[1].replace('\'b','')
     fun[exp[0]] = exp[1]
@@ -72,8 +78,9 @@ for i,v in enumerate(itertools.chain( in_var, out_var)):
     else:
         print('{1:|>{0}}'.format(len(in_var),''), end = '')
         print('    ',end = '')
-        print('{1:|>{0}}'.format(i+1-len(in_var),v))
-
+        # print(i,len(in_var))
+        print('{1:|>{0}}'.format(i-len(in_var)+len(v),v))
+# exit(0)
 for one_of_out in out_var:
     # print('分析', fun[one_of_out])
     sa = analysis.SimpleAnalysis(fun[one_of_out], in_var)
@@ -90,3 +97,4 @@ for one_of_out in out_var:
                 print('-',end = '')
         print('')
     del sa
+    # print('完成')
