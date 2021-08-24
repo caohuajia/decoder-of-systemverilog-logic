@@ -1,5 +1,5 @@
 # decoder
-这是一个解析system verilog ,组合逻辑电路的项目
+这是一个解析system verilog 组合逻辑语句的项目
 将要分析的代码写在一个文件中，例如：
 ```
 assign a = b[0]&(~(( b[1]// 注释文本
